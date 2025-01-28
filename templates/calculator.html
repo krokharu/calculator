@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>電卓</title>
+    <script>
+        let expression = "";
+
+        function addToExpression(value) {
+            const display = document.getElementById("display");
+            if (value === "C") {
+                expression = "";
+                display.value = "0";
+            } else if (value === "=") {
+                calculateResult();
+            } else {
+                expression += value;
+                display.value = expression;
+            }
+        }
+
+        async function calculateResult() {
+            const response = await fetch("/calculate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ expression }),
+            });
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById("display").value = data.result;
+                expression = data.result.toString();
+            } else {
+                const errorData = await response.json();
+                document.getElementById("display").value = errorData.result;
+                expression = "";
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="calculator">
+        <input type="text" disabled id="display" value="0">
+        <div class="buttons">
+            <button onclick="addToExpression('7')">7</button>
+            <button onclick="addToExpression('8')">8</button>
+            <button onclick="addToExpression('9')">9</button>
+            <button onclick="addToExpression('/')">/</button>
+            <button onclick="addToExpression('4')">4</button>
+            <button onclick="addToExpression('5')">5</button>
+            <button onclick="addToExpression('6')">6</button>
+            <button onclick="addToExpression('*')">*</button>
+            <button onclick="addToExpression('1')">1</button>
+            <button onclick="addToExpression('2')">2</button>
+            <button onclick="addToExpression('3')">3</button>
+            <button onclick="addToExpression('-')">-</button>
+            <button onclick="addToExpression('0')">0</button>
+            <button onclick="addToExpression('C')">C</button>
+            <button onclick="addToExpression('=')">=</button>
+            <button onclick="addToExpression('+')">+</button>
+        </div>
+    </div>
+</body>
+</html>
